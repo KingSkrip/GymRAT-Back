@@ -10,12 +10,7 @@ class SubRole extends Model
     use HasFactory;
 
     protected $fillable = [
-        'role_id',
-        'name'
+        'name',
+        'description'
     ];
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
 }

@@ -80,4 +80,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(ClientSubscription::class);
     }
+
+
+
+    public function modelHasRole()
+    {
+        return $this->hasOne(ModelHasRole::class, 'model_id')
+            ->where('model_type', 'App\\Models\\User');
+    }
 }

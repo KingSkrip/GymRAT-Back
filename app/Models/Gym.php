@@ -31,4 +31,9 @@ class Gym extends Model
     {
         return $this->hasMany(GymBranch::class);
     }
+
+    public function systemClient()
+    {
+        return $this->belongsTo(SystemClient::class, 'system_client_id');
+    }
 }

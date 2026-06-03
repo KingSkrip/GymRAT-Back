@@ -14,13 +14,12 @@ class Role extends Model
         'guard_name'
     ];
 
-    public function subRoles()
-    {
-        return $this->hasMany(SubRole::class);
-    }
-
     public function users()
     {
-        return $this->morphedByMany(User::class, 'model', 'model_has_roles');
+        return $this->morphedByMany(
+            User::class,
+            'model',
+            'model_has_roles'
+        );
     }
 }
