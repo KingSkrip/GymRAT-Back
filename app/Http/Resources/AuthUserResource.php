@@ -33,36 +33,36 @@ class AuthUserResource extends JsonResource
             ->sortByDesc('expires_at')
             ->first();
 
-     // 🔥 último acceso (lo dejamos para compatibilidad)
-$lastAccess = $this->accessLogs
-    ->sortByDesc('accessed_at')
-    ->first();
+        // 🔥 último acceso (lo dejamos para compatibilidad)
+        $lastAccess = $this->accessLogs
+            ->sortByDesc('accessed_at')
+            ->first();
 
-// 🔥 historial agrupado por fecha
-$accessSessions = $this->accessLogs
-    ->sortBy('accessed_at')
-    ->groupBy(fn($log) => \Carbon\Carbon::parse($log->accessed_at)->format('Y-m-d'))
-    ->map(function ($logs, $date) {
-        $entrada = $logs->where('access_type', 'qr')->first()
-                ?? $logs->where('access_type', 'biometric')->first()
-                ?? $logs->first();
+        // 🔥 historial agrupado por fecha
+        $accessSessions = $this->accessLogs
+            ->sortBy('accessed_at')
+            ->groupBy(fn($log) => \Carbon\Carbon::parse($log->accessed_at)->format('Y-m-d'))
+            ->map(function ($logs, $date) {
+                $entrada = $logs->where('access_type', 'qr')->first()
+                    ?? $logs->where('access_type', 'biometric')->first()
+                    ?? $logs->first();
 
-        $salida = $logs->count() > 1 ? $logs->last() : null;
+                $salida = $logs->count() > 1 ? $logs->last() : null;
 
-        return [
-            'date'    => $date,
-            'entrada' => $entrada ? [
-                'at'     => $entrada->accessed_at,
-                'method' => $entrada->access_type,
-            ] : null,
-            'salida'  => $salida ? [
-                'at'     => $salida->accessed_at,
-                'method' => $salida->access_type,
-            ] : null,
-        ];
-    })
-    ->values();
-    
+                return [
+                    'date'    => $date,
+                    'entrada' => $entrada ? [
+                        'at'     => $entrada->accessed_at,
+                        'method' => $entrada->access_type,
+                    ] : null,
+                    'salida'  => $salida ? [
+                        'at'     => $salida->accessed_at,
+                        'method' => $salida->access_type,
+                    ] : null,
+                ];
+            })
+            ->values();
+
 
         // 🔥 workout actual
         $workout = $this->workouts
@@ -152,7 +152,7 @@ $accessSessions = $this->accessLogs
             ] : null,
 
             'access_sessions' => $accessSessions,
-            
+
             // ─────────────────────────────
             // Workout
             // ─────────────────────────────

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Suadmin\Clientes\ClientesController;
 use App\Http\Controllers\Suadmin\Facturacion\FacturacionController;
 use App\Http\Controllers\Suadmin\gyms\GymsController;
 use App\Http\Controllers\Suadmin\RolesController;
@@ -41,9 +42,17 @@ Route::prefix('gestion')->middleware('jwt.auth')->group(function () {
     Route::get('/roles', [RolesController::class, 'index']);
     Route::get('/users', [UsersController::class, 'users']);
     Route::get('/facturacion', [FacturacionController::class, 'index']);
-    
-     Route::get('/gyms',        [GymsController::class,       'index']);
+    Route::get('/gyms',        [GymsController::class,       'index']);
+    Route::post('/gyms/{gym}/branches', [GymsController::class, 'storeBranch']);
+    Route::put('/gyms/{gym}/branches/{branch}', [GymsController::class, 'updateBranch']);
+});
 
-Route::post('/gyms/{gym}/branches', [GymsController::class, 'storeBranch']);
-Route::put('/gyms/{gym}/branches/{branch}', [GymsController::class, 'updateBranch']);
+
+Route::prefix('clientes')->middleware('jwt.auth')->group(function () {
+    Route::get('/',           [ClientesController::class, 'index']);
+    Route::get('/{id}',       [ClientesController::class, 'show']);
+    Route::post('/',          [ClientesController::class, 'store']);
+    Route::put('/{id}',       [ClientesController::class, 'update']);
+    Route::patch('/{id}/toggle', [ClientesController::class, 'toggle']);
+    Route::delete('/{id}',    [ClientesController::class, 'destroy']);
 });
