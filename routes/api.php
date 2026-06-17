@@ -5,6 +5,7 @@ use App\Http\Controllers\Suadmin\Clientes\ClientesController;
 use App\Http\Controllers\Suadmin\Facturacion\FacturacionController;
 use App\Http\Controllers\Suadmin\gyms\GymsController;
 use App\Http\Controllers\Suadmin\RolesController;
+use App\Http\Controllers\Suadmin\Sucursales\SucursalesController;
 use App\Http\Controllers\Suadmin\users\UsersController;
 use App\Http\Controllers\Users\QrController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,38 @@ Route::prefix('gestion')->middleware('jwt.auth')->group(function () {
     Route::get('/gyms',        [GymsController::class,       'index']);
     Route::post('/gyms/{gym}/branches', [GymsController::class, 'storeBranch']);
     Route::put('/gyms/{gym}/branches/{branch}', [GymsController::class, 'updateBranch']);
+
+
+
+    Route::get('/clients-list', [GymsController::class, 'clientsList']);
+    Route::get('/gyms', [GymsController::class, 'index']);
+    Route::get('/gyms/{id}', [GymsController::class, 'show']);
+    Route::post('/gyms', [GymsController::class, 'store']);
+    Route::put('/gyms/{id}', [GymsController::class, 'update']);
+    Route::patch('/gyms/{id}/toggle', [GymsController::class, 'toggle']);
+    Route::delete('/gyms/{id}', [GymsController::class, 'destroy']);
+
+
+
+
+
+
+
+
+
+
+
+    // Sucursales
+    Route::get('/sucursales', [SucursalesController::class, 'index']);
+    Route::get('/sucursales/{id}', [SucursalesController::class, 'show']);
+    Route::put('/sucursales/{id}', [SucursalesController::class, 'update']);
+    Route::patch('/sucursales/{id}/toggle', [SucursalesController::class, 'toggle']);
+    Route::delete('/sucursales/{id}', [SucursalesController::class, 'destroy']);
+    Route::post('/sucursales/{id}/subscriptions', [SucursalesController::class, 'storeSubscription']);
+    Route::put('/sucursales/{id}/subscriptions/{subId}', [SucursalesController::class, 'updateSubscription']);
+    Route::post('/sucursales/{id}/subscriptions/{subId}/payments', [SucursalesController::class, 'storePayment']);
+    Route::get('/gyms-list', [SucursalesController::class, 'gymsList']);
+    Route::post('/sucursales', [SucursalesController::class, 'store']);
 });
 
 
