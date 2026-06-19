@@ -37,8 +37,7 @@ class ClientesController extends Controller
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(fn($q) => $q->where('name', 'LIKE', "%{$s}%")
-                ->orWhere('email', 'LIKE', "%{$s}%")
-                ->orWhere('phone', 'LIKE', "%{$s}%"));
+                ->orWhere('email', 'LIKE', "%{$s}%"));
         }
 
         $clients = $query->orderBy('created_at', 'desc')->get();

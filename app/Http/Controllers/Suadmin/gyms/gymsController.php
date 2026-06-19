@@ -37,8 +37,6 @@ class GymsController extends Controller
             $query->where(
                 fn($q) =>
                 $q->where('name', 'LIKE', "%{$s}%")
-                    ->orWhere('address', 'LIKE', "%{$s}%")
-                    ->orWhere('phone', 'LIKE', "%{$s}%")
                     ->orWhereHas(
                         'client',
                         fn($cq) =>

@@ -42,11 +42,9 @@ class SucursalesController extends Controller
             $s = $request->search;
             $query->where(
                 fn($q) => $q->where('name', 'LIKE', "%{$s}%")
-                    ->orWhere('address', 'LIKE', "%{$s}%")
                     ->orWhereHas(
                         'gym',
                         fn($gq) => $gq->where('name', 'LIKE', "%{$s}%")
-                            ->orWhereHas('client', fn($cq) => $cq->where('name', 'LIKE', "%{$s}%"))
                     )
             );
         }
