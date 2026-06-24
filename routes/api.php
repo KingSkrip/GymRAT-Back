@@ -41,14 +41,28 @@ Route::prefix('qr')->middleware('jwt.auth')->group(function () {
 
 Route::prefix('gestion')->middleware('jwt.auth')->group(function () {
     Route::get('/roles', [RolesController::class, 'index']);
+    Route::post('/roles', [RolesController::class, 'storeRole']);
+    Route::get('/roles/{id}', [RolesController::class, 'showRole']);
+    Route::put('/roles/{id}', [RolesController::class, 'updateRole']);
+    Route::delete('/roles/{id}', [RolesController::class, 'destroyRole']);
+
+    Route::get('/sub-roles', [RolesController::class, 'indexSubRoles']);
+    Route::post('/sub-roles', [RolesController::class, 'storeSubRole']);
+    Route::get('/sub-roles/{id}', [RolesController::class, 'showSubRole']);
+    Route::put('/sub-roles/{id}', [RolesController::class, 'updateSubRole']);
+    Route::delete('/sub-roles/{id}', [RolesController::class, 'destroySubRole']);
+
     Route::get('/users', [UsersController::class, 'users']);
+    Route::post('/users', [UsersController::class, 'store']);
+    Route::put('/users/{id}', [UsersController::class, 'update']);
+    Route::delete('/users/{id}', [UsersController::class, 'destroy']);
+    Route::get('/users/{id}', [UsersController::class, 'show']);
+
+
     Route::get('/facturacion', [FacturacionController::class, 'index']);
     Route::get('/gyms',        [GymsController::class,       'index']);
     Route::post('/gyms/{gym}/branches', [GymsController::class, 'storeBranch']);
     Route::put('/gyms/{gym}/branches/{branch}', [GymsController::class, 'updateBranch']);
-
-
-
     Route::get('/clients-list', [GymsController::class, 'clientsList']);
     Route::get('/gyms', [GymsController::class, 'index']);
     Route::get('/gyms/{id}', [GymsController::class, 'show']);
