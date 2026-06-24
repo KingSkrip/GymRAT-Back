@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Helpers\JwtHelper;
+use App\Models\User;
 use Exception;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class JwtMiddleware
 {
@@ -20,7 +21,12 @@ class JwtMiddleware
 
         try {
             $decoded = JwtHelper::validateToken($token);
+            $user = User::findOrFail($decoded->user_id);
+
+            Auth::setUser($user);
+            $request->setUserResolver(fn() => $user);
             $request->auth = $decoded;
+
         } catch (Exception $e) {
             return response()->json(['message' => 'Token inválido'], 401);
         }

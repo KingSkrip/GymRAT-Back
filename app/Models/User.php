@@ -14,10 +14,11 @@ class User extends Authenticatable
 
     protected $fillable = [
         'gym_id',
+        'gymbranch_id',
         'name',
+        'phone',
         'email',
         'password',
-        'type',
         'is_active'
     ];
 
@@ -85,7 +86,29 @@ class User extends Authenticatable
 
     public function modelHasRole()
     {
-        return $this->hasOne(ModelHasRole::class, 'model_id')
-            ->where('model_type', 'App\\Models\\User');
+        return $this->morphOne(ModelHasRole::class, 'model');
+    }
+
+    public function modelHasRoles()
+    {
+        return $this->morphMany(ModelHasRole::class, 'model');
+    }
+
+    // Helper para checar rol fácil
+    public function hasRole(string $roleName): bool
+    {
+        return $this->modelHasRoles()
+            ->whereHas('role', fn($q) => $q->where('name', $roleName))
+            ->exists();
+    }
+    public function ownedGyms()
+    {
+        return $this->hasMany(Gym::class, 'owner_id');
+    }
+
+
+    public function systemClient()
+    {
+        return $this->hasOne(SystemClient::class);
     }
 }

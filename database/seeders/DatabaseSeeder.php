@@ -18,9 +18,9 @@ class DatabaseSeeder extends Seeder
     $this->call([
         RoleSeeder::class,
         SubRoleSeeder::class,
-        SystemClientSeeder::class,
-        GymSeeder::class,
-        GymBranchSeeder::class,
+        // SystemClientSeeder::class,
+        //  GymSeeder::class,
+        //  GymBranchSeeder::class,
     ]);
 }
 }

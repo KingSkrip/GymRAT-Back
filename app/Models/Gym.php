@@ -11,6 +11,7 @@ class Gym extends Model
 
     protected $fillable = [
         'system_client_id',
+        'owner_id',
         'name',
         'address',
         'phone',
@@ -35,5 +36,10 @@ class Gym extends Model
     public function systemClient()
     {
         return $this->belongsTo(SystemClient::class, 'system_client_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 }

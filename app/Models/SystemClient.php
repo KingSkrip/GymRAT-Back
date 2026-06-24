@@ -10,13 +10,22 @@ class SystemClient extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
+        'user_id',
         'is_active',
         'subscription_start',
-        'subscription_end'
+        'subscription_end',
     ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'subscription_start' => 'date',
+        'subscription_end' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function gyms()
     {

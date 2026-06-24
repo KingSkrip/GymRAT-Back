@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('email')->unique()->nullable();
-            $table->string('phone')->nullable();
 
-            $table->boolean('is_active')->default(true)->nullable(); // 🔥 si no paga, lo desactivas
-
+            $table->boolean('is_active')->default(true)->nullable();
             $table->date('subscription_start')->nullable();
             $table->date('subscription_end')->nullable();
 

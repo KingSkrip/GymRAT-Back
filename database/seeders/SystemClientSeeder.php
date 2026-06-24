@@ -10,13 +10,14 @@ class SystemClientSeeder extends Seeder
     public function run(): void
     {
         SystemClient::updateOrCreate(
-            ['email' => 'demo@gymrat.com'],
             [
-                'name' => 'Gym Demo Client',
+                'user_id' => 3,
+            ],
+            [
                 'phone' => '0000000000',
                 'is_active' => true,
                 'subscription_start' => now(),
-                'subscription_end' => now()->addMonth()
+                'subscription_end' => now()->addMonth(),
             ]
         );
     }

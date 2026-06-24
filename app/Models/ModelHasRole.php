@@ -14,9 +14,8 @@ class ModelHasRole extends Model
     protected $fillable = [
         'role_id',
         'sub_role_id',
-          'model_type',
+        'model_type',
         'model_id',
-      
     ];
 
     public function role()
@@ -29,8 +28,16 @@ class ModelHasRole extends Model
         return $this->belongsTo(SubRole::class);
     }
 
+    // Relación polimórfica correcta
+    public function model()
+    {
+        return $this->morphTo();
+    }
+
+    // Shortcut directo a User cuando model_type = App\Models\User
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class, 'model_id')
+            ->where('model_type', User::class);
+    }
 }

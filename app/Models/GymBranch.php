@@ -20,25 +20,27 @@ class GymBranch extends Model
         'is_active'
     ];
 
+    // 🏋️ pertenece a un gym
     public function gym()
     {
-        return $this->belongsTo(Gym::class);
+        return $this->belongsTo(Gym::class, 'gym_id');
     }
 
+    // 👤 usuarios dentro de esta sucursal
     public function users()
     {
         return $this->hasMany(User::class, 'gym_branch_id');
     }
 
+    // 📊 logs de acceso de esta sucursal
     public function accessLogs()
     {
         return $this->hasMany(AccessLog::class, 'gym_branch_id');
     }
 
+    // 💳 suscripciones de la sucursal
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(
-            GymBranchSubscription::class
-        );
+        return $this->hasMany(GymBranchSubscription::class, 'gym_branch_id');
     }
 }
