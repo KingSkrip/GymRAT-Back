@@ -2,38 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Workout extends Model
+class DietUser extends Model
 {
-    use HasFactory;
 
+    protected $table = 'diets_user';
     protected $fillable = [
         'coach_id',
         'user_id',
         'title',
         'description',
-        'goal',
-        'level',
-        'days_per_week',
-        'estimated_duration',
+        'calories',
+        'protein',
+        'carbs',
+        'fat',
+        'water',
         'starts_at',
         'ends_at',
         'is_active',
+        'notes'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
         'starts_at' => 'date',
-        'ends_at'   => 'date',
+        'ends_at' => 'date',
+        'is_active' => 'boolean'
     ];
-
-    public function days(): HasMany
-    {
-        return $this->hasMany(WorkoutDay::class)->orderBy('order');
-    }
 
     public function coach()
     {
@@ -45,8 +40,8 @@ class Workout extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function user()
+    public function meals()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(DietMealUser::class, 'diet_id');
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ModelHasRole;
 use App\Models\SystemClient;
 use App\Models\User;
+use App\Services\Clientes\ClienteService;
 use Carbon\Carbon;
 use Exception as GlobalException;
 use Illuminate\Http\JsonResponse;
@@ -16,53 +17,30 @@ use Illuminate\Support\Facades\Validator;
 
 class ClientesController extends Controller
 {
+    public function __construct(private ClienteService $clienteService) {}
     // ── GET /suadmin/clientes ─────────────────────────────────────────
     public function index()
     {
         $clients = SystemClient::query()
-            ->with(['user:id,name,email,phone'])
+            ->with(['user:id,name,email,phone', 'gyms.branches'])
             ->withCount([
                 'gyms',
-                'gyms as branch_count' => function ($query) {
-                    $query->join('gym_branches', 'gym_branches.gym_id', '=', 'gyms.id');
-                }
+                'gyms as branch_count' => fn($q) =>
+                $q->join('gym_branches', 'gym_branches.gym_id', '=', 'gyms.id'),
             ])
             ->get()
-            ->map(function ($client) {
-
-                return [
-                    'id' => $client->id,
-
-                    // ✔ viene del USER
-                    'name' => $client->user?->name,
-                    'email' => $client->user?->email,
-                    'phone' => $client->user?->phone,
-
-                    'is_active' => $client->is_active,
-                    'subscription_start' => $client->subscription_start,
-                    'subscription_end' => $client->subscription_end,
-
-                    'days_left' => $client->subscription_end?->diffInDays($client->subscription_end, false),
-
-                    'gym_count' => $client->gyms_count ?? 0,
-                    'branch_count' => $client->branch_count ?? 0,
-
-                    'status_label' => $client->is_active ? 'Activo' : 'Inactivo',
-                    'status_color' => $client->is_active ? 'green' : 'red',
-
-                    'created_at' => $client->created_at,
-                ];
-            });
+            ->map(fn($c) => $this->clienteService->formatClient($c));
 
         return response()->json([
             'metrics' => [
-                'total' => $clients->count(),
-                'active' => $clients->where('is_active', true)->count(),
+                'total'    => $clients->count(),
+                'active'   => $clients->where('is_active', true)->count(),
                 'inactive' => $clients->where('is_active', false)->count(),
             ],
-            'data' => $clients
+            'data' => $clients,
         ]);
     }
+
     // ── GET /suadmin/clientes/{id} ────────────────────────────────────
     public function show(int $id): JsonResponse
     {
@@ -70,11 +48,11 @@ class ClientesController extends Controller
             'user:id,name,email,phone',
             'gyms.branches',
             'gyms.owner:id,name',
-            'subscriptions'
+            'subscriptions',
         ])->findOrFail($id);
 
         return response()->json([
-            'data' => $this->formatClientDetail($client),
+            'data' => $this->clienteService->formatClientDetail($client),
         ]);
     }
 
@@ -127,7 +105,7 @@ class ClientesController extends Controller
 
             return response()->json([
                 'message' => 'Cliente creado correctamente.',
-                'data' => $this->formatClientDetail(
+                'data'    => $this->clienteService->formatClientDetail(
                     $client->load(['user', 'gyms.branches', 'subscriptions'])
                 ),
             ], 201);
@@ -187,7 +165,7 @@ class ClientesController extends Controller
 
             return response()->json([
                 'message' => 'Cliente actualizado correctamente.',
-                'data' => $this->formatClientDetail(
+                'data'    => $this->clienteService->formatClientDetail(
                     $client->fresh(['user', 'gyms.branches', 'subscriptions'])
                 ),
             ]);

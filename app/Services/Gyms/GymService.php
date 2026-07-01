@@ -56,7 +56,7 @@ class GymService
 
 public function getGyms(Request $request): array
 {
-    $user = $request->user(); // ✅ usa el guard que configuró jwt.auth
+    $user = $request->user();
 
     if (!$user) {
         abort(401, 'No autenticado.');
@@ -64,22 +64,25 @@ public function getGyms(Request $request): array
 
     $role = $user->modelHasRole?->role?->name;
 
-    $query = Gym::with(['branches', 'client']);
+    $query = Gym::with(['branches', 'client.user']);
 
     match ($role) {
-        'owner' => $query->where('owner_id', $user->id),
+        // Superadmin: ve todo, sin filtro
+        'superadmin' => null,
 
-        'coach' => $query->whereHas(
-            'branches.users',
-            fn($q) => $q->where('users.id', $user->id)
-        ),
+        // Gym Owner: solo los gyms donde es dueño (gyms.owner_id)
+        'gym_owner' => $query->where('owner_id', $user->id),
 
-        'client' => $query->whereHas(
-            'branches.users',
-            fn($q) => $q->where('users.id', $user->id)
-        ),
+        // Admin: los gyms donde está asignado (users.gym_id)
+        'admin' => $query->where('id', $user->gym_id),
 
-        default => null
+        // Coach: los gyms donde trabaja (users.gym_id)
+        'coach' => $query->where('id', $user->gym_id),
+
+        // Client: los gyms donde tiene registro (users.gym_id)
+        'client' => $query->where('id', $user->gym_id),
+
+        default => abort(403, 'Rol no reconocido.')
     };
 
     if ($request->has('status')) {
@@ -98,15 +101,15 @@ public function getGyms(Request $request): array
         $s = $request->search;
         $query->where(
             fn($q) =>
-            $q->where('name', 'LIKE', "%{$s}%")
+            $q->where('gyms.name', 'LIKE', "%{$s}%")
                 ->orWhereHas(
-                    'client',
+                    'client.user',
                     fn($cq) => $cq->where('name', 'LIKE', "%{$s}%")
                 )
         );
     }
 
-    $gyms = $query->orderBy('created_at', 'desc')->get();
+    $gyms = $query->orderBy('gyms.created_at', 'desc')->get();
 
     return [
         'metrics' => [
@@ -119,10 +122,9 @@ public function getGyms(Request $request): array
     ];
 }
 
-
     public function getGym(int $id): array
     {
-        $gym = Gym::with(['branches', 'client'])->findOrFail($id);
+        $gym = Gym::with(['branches', 'client.user'])->findOrFail($id);  // ← .user
 
         return $this->formatGymDetail($gym);
     }
@@ -170,38 +172,42 @@ public function getGyms(Request $request): array
 
     public function getClients(?int $includeId = null)
     {
-        $query = SystemClient::select('id', 'name', 'email');
+        $query = SystemClient::select('system_clients.id', 'users.name', 'users.email')
+            ->join('users', 'users.id', '=', 'system_clients.user_id');
 
         if ($includeId) {
             $query->where(
                 fn($q) =>
-                $q->where('is_active', 1)
-                    ->orWhere('id', $includeId)
+                $q->where('system_clients.is_active', 1)
+                    ->orWhere('system_clients.id', $includeId)
             );
         } else {
-            $query->where('is_active', 1);
+            $query->where('system_clients.is_active', 1);
         }
 
-        return $query->orderBy('name')->get();
+        return $query->orderBy('users.name')->get();
     }
 
     private function formatGym(Gym $gym): array
     {
         return [
-            'id' => $gym->id,
-            'name' => $gym->name,
-            'address' => $gym->address,
-            'phone' => $gym->phone,
-            'is_active' => (bool) $gym->is_active,
-            'branch_count' => $gym->branches->count(),
-            'status_label' => $gym->is_active ? 'Activo' : 'Inactivo',
-            'status_color' => $gym->is_active ? 'green' : 'gray',
-            'created_at' => $gym->created_at,
+            'id'               => $gym->id,
+            'name'             => $gym->name,
+            'address'          => $gym->address,
+            'phone'            => $gym->phone,
+            'is_active'        => (bool) $gym->is_active,
+            'branch_count'     => $gym->branches->count(),
+            'status_label'     => $gym->is_active ? 'Activo' : 'Inactivo',
+            'status_color'     => $gym->is_active ? 'green' : 'gray',
+            'created_at'       => $gym->created_at,
             'system_client_id' => $gym->system_client_id,
-            'client' => $gym->client,
+            'client' => $gym->client ? [
+                'id'    => $gym->client->id,
+                'name'  => $gym->client->user?->name,
+                'email' => $gym->client->user?->email,
+            ] : null,
         ];
     }
-
     private function formatGymDetail(Gym $gym): array
     {
         $data = $this->formatGym($gym);

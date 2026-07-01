@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -101,7 +103,7 @@ class AuthController extends Controller
                 'permissions' => $roleId,
                 'user' => new AuthUserResource($user)
             ]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             return response()->json(['message' => 'Token inválido'], 401);
         }
     }
@@ -262,13 +264,18 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Usuario no encontrado'], 401);
             }
 
-            $role = $user->roles->first();
-            $roleId = $role?->id ?? $request->auth->permissions ?? 5;
+            $resourceArray = (new AuthUserResource($user))->toArray($request);
 
-            return response()->json([
-                'user' => new AuthUserResource($user)
-            ]);
-        } catch (\Exception $e) {
+            // 👇 DEBUG TEMPORAL
+            $json = json_encode(['user' => $resourceArray]);
+            if ($json === false) {
+                Log::channel('single')->error('JSON ENCODE FAILED: ' . json_last_error_msg());
+                return response()->json(['message' => 'JSON encode error: ' . json_last_error_msg()], 500);
+            }
+
+            return response($json, 200)->header('Content-Type', 'application/json');
+        } catch (Throwable $e) {
+            Log::channel('single')->error('ME ERROR: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

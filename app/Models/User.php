@@ -46,11 +46,6 @@ class User extends Authenticatable
         );
     }
 
-    public function workouts()
-    {
-        return $this->hasMany(Workout::class, 'user_id');
-    }
-
     public function roles()
     {
         return $this->morphToMany(Role::class, 'model', 'model_has_roles');
@@ -58,7 +53,7 @@ class User extends Authenticatable
 
     public function branch()
     {
-        return $this->belongsTo(GymBranch::class, 'gym_branch_id');
+        return $this->belongsTo(GymBranch::class, 'gymbranch_id');
     }
 
     public function biometrics()
@@ -81,7 +76,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(ClientSubscription::class);
     }
-
 
 
     public function modelHasRole()
@@ -110,5 +104,52 @@ class User extends Authenticatable
     public function systemClient()
     {
         return $this->hasOne(SystemClient::class);
+    }
+
+    public function membership()
+    {
+        return $this->hasOne(Membership::class)->latestOfMany();
+    }
+
+    public function coaches()
+    {
+        return $this->belongsToMany(User::class, 'coach_user', 'user_id', 'coach_id');
+    }
+
+    public function assignedClients()
+    {
+        return $this->belongsToMany(User::class, 'coach_user', 'coach_id', 'user_id');
+    }
+
+
+
+    public function workouts()
+    {
+        return $this->hasMany(Workout::class, 'user_id');
+    }
+
+    public function createdWorkouts()
+    {
+        return $this->hasMany(Workout::class, 'coach_id');
+    }
+
+    public function assessments()
+    {
+        return $this->hasMany(AssessmentUser::class, 'user_id');
+    }
+
+    public function createdAssessments()
+    {
+        return $this->hasMany(AssessmentUser::class, 'coach_id');
+    }
+
+    public function diets()
+    {
+        return $this->hasMany(DietUser::class, 'user_id');
+    }
+
+    public function createdDiets()
+    {
+        return $this->hasMany(DietUser::class, 'coach_id');
     }
 }

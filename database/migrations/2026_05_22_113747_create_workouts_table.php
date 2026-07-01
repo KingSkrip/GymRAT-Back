@@ -13,11 +13,52 @@ return new class extends Migration
     {
         Schema::create('workouts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('coach_id')->constrained('users')->onDelete('cascade')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable();
+
+            $table->foreignId('coach_id')
+                ->nullable()
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->string('title')->nullable();
             $table->text('description')->nullable();
+
+            // Objetivo de la rutina
+            $table->enum('goal', [
+                'Fuerza',
+                'Hipertrofia',
+                'Pérdida de grasa',
+                'Acondicionamiento físico',
+                'Rehabilitación',
+                'Personalizado',
+            ])->default('Personalizado');
+
+            // Nivel del cliente
+            $table->enum('level', [
+                'Principiante',
+                'Intermedio',
+                'Avanzado'
+            ])->default('Principiante');
+
+            // Días por semana
+            $table->unsignedTinyInteger('days_per_week')->nullable();
+
+            // Duración estimada en minutos
+            $table->unsignedSmallInteger('estimated_duration')->nullable();
+
+            // Vigencia
+            $table->date('starts_at')->nullable();
+            $table->date('ends_at')->nullable();
+
+            // Rutina activa
+            $table->boolean('is_active')->default(true);
+
             $table->json('exercises')->nullable();
+
             $table->timestamps();
         });
     }

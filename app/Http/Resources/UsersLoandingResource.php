@@ -5,14 +5,14 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AuthUserResource extends JsonResource
+class UsersLoandingResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      */
     public function toArray(Request $request): array
     {
-        $role = $this->modelHasRole?->role;
+        $role = $this->roles->first();
         $roleId = $role?->id ?? 5;
 
         // 🔥 membresía activa
@@ -75,7 +75,8 @@ class AuthUserResource extends JsonResource
             // ─────────────────────────────
             'id' => $this->id,
             'gym_id' => $this->gym_id,
-            'gymbranch_id' => $this->gymbranch_id,
+         'gymbranch_id' => $this->gymbranch_id, 
+
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
@@ -113,25 +114,18 @@ class AuthUserResource extends JsonResource
             // ─────────────────────────────
             // Membership
             // ─────────────────────────────
-           'membership' => $membership ? [
-    'id'             => $membership->id,
-    'type'           => $membership->type,
-    'price'          => $membership->price,
-    'start_date'     => $membership->start_date,
-    'end_date'       => $membership->end_date,
-    'is_active'      => $membership->is_active,
-    'is_valid'       => $membership->isValid(),
-    'remaining_days' => $membership->remainingDays(),
-    'next_payment'   => $membership->end_date,
-] : null,
-            'coach' => $this->whenLoaded(
-                'coaches',
-                fn() =>
-                $this->coaches->map(fn($c) => [
-                    'id'   => $c->id,
-                    'name' => $c->name,
-                ])->values()
-            ),
+            'membership' => $membership ? [
+                'id' => $membership->id,
+                'type' => $membership->type,
+                'price' => $membership->price,
+
+                'start_date' => $membership->start_date,
+                'end_date' => $membership->end_date,
+
+                'days_left' => $membershipDaysLeft,
+
+                'is_active' => $membershipActive,
+            ] : null,
 
             // ─────────────────────────────
             // QR

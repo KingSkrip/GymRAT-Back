@@ -112,24 +112,24 @@ class RolesController extends Controller
     // SUBROLES CRUD
     // =========================
 
-   public function storeSubRole(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255|unique:sub_roles,name',
-        'description' => 'required|string|max:255',
-    ]);
+    public function storeSubRole(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:sub_roles,name',
+            'description' => 'required|string|max:255',
+        ]);
 
-    $subRole = SubRole::create([
-        'name' => $request->name,
-        'description' => $request->description,
-    ]);
+        $subRole = SubRole::create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'SubRole creado correctamente',
-        'sub_role' => $subRole
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'SubRole creado correctamente',
+            'sub_role' => $subRole
+        ]);
+    }
 
     public function showSubRole($id)
     {
@@ -141,26 +141,26 @@ class RolesController extends Controller
         ]);
     }
 
-public function updateSubRole(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255|unique:sub_roles,name,' . $id,
-        'description' => 'required|string|max:255',
-    ]);
+    public function updateSubRole(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:sub_roles,name,' . $id,
+            'description' => 'required|string|max:255',
+        ]);
 
-    $subRole = SubRole::findOrFail($id);
+        $subRole = SubRole::findOrFail($id);
 
-    $subRole->update([
-        'name' => $request->name,
-        'description' => $request->description,
-    ]);
+        $subRole->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'SubRole actualizado correctamente',
-        'sub_role' => $subRole
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'SubRole actualizado correctamente',
+            'sub_role' => $subRole
+        ]);
+    }
     public function destroySubRole($id)
     {
         $subRole = SubRole::findOrFail($id);
@@ -174,12 +174,12 @@ public function updateSubRole(Request $request, $id)
 
 
     public function indexSubRoles()
-{
-    $subRoles = SubRole::all();
+    {
+        $subRoles = SubRole::all();
 
-    return response()->json([
-        'success' => true,
-        'sub_roles' => $subRoles
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'sub_roles' => $subRoles
+        ]);
+    }
 }
